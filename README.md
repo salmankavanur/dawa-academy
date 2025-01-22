@@ -427,6 +427,7 @@ export default function Home() {
 
 
 
+
 app->layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
@@ -451,7 +452,6 @@ export default function RootLayout({ children }) {
     </html>
   );
 }
-
 
 
 
@@ -589,16 +589,16 @@ export default function UsersPage() {
 
 app->admission->page.js
 
-'use client';  // This marks the file as a client-side component
+"use client";
 
-import { useState } from "react"; 
-import Image from "next/image"; 
+import { useState } from "react";
+import Image from "next/image";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons"; 
-import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons"; 
-import Link from "next/link"; 
-import "@fontsource/anek-malayalam";  
-import "@fontsource/poppins";   
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
+import "@fontsource/anek-malayalam";
+import "@fontsource/poppins";
 
 export default function Admission() {
   const [formData, setFormData] = useState({
@@ -611,21 +611,30 @@ export default function Admission() {
     dob: "",
     phone: "",
     whatsapp: "",
-    aadhaar: null,
-    tc: null,
-    pupilPhoto: null,
-    signature: null,
+    email: "",
+    password: "",
+    institute: "",
     studiedBefore: "NO",
     prevInstitute: "",
     studyYears: "",
     lastMadrassaClass: "",
-    lastSchoolClass: ""
+    lastSchoolClass: "",
   });
+
+  const [files, setFiles] = useState({
+    aadhaar: null,
+    tc: null,
+    pupilPhoto: null,
+    signature: null,
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     if (type === "file") {
-      setFormData({ ...formData, [name]: e.target.files[0] });
+      setFiles({ ...files, [name]: e.target.files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -633,62 +642,86 @@ export default function Admission() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const response = await fetch('/api/admissions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
+    setLoading(true);
+    setMessage("");
+
+    const formDataToSend = new FormData();
+
+    // Append text fields
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSend.append(key, value);
     });
-  
-    if (response.ok) {
-      alert('Admission submitted successfully!');
-    } else {
-      alert('Error submitting admission');
+
+    // Append file fields
+    Object.entries(files).forEach(([key, file]) => {
+      if (file) {
+        formDataToSend.append(key, file);
+      }
+    });
+
+    try {
+      const response = await fetch("/api/admissions", {
+        method: "POST",
+        body: formDataToSend,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setMessage("✅ Admission submitted successfully!");
+      } else {
+        setMessage(`❌ Error: ${data.error}`);
+      }
+    } catch (error) {
+      setMessage("❌ Error submitting admission");
+      console.error("❌ Submission Error:", error);
     }
+
+    setLoading(false);
   };
-  
+
   return (
     <div className="bg-gradient-to-b from-green-900 to-green-800 text-white min-h-screen">
-      {/* Admission Form */}
       <section className="container mx-auto px-6 py-24">
         <h2 className="text-5xl font-bold mb-8 text-center font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
           Admission Form
         </h2>
+        {message && <p className="text-center text-lg font-semibold">{message}</p>}
         <form onSubmit={handleSubmit} className="bg-green-700/50 p-8 rounded-2xl shadow-xl max-w-4xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input type="text" name="name" placeholder="Name of Pupil" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="fatherName" placeholder="Father's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="motherName" placeholder="Mother's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="guardianName" placeholder="Guardian's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="relation" placeholder="Relation with the Child" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="date" name="dob" placeholder="Date of Birth" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="phone" placeholder="Phone Number" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="whatsapp" placeholder="Whatsapp Number" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
+            <input type="text" name="name" placeholder="Name of Pupil" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="email" name="email" placeholder="Email" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="password" name="password" placeholder="Password" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="fatherName" placeholder="Father's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="motherName" placeholder="Mother's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="guardianName" placeholder="Guardian's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="relation" placeholder="Relation with the Child" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="address" placeholder="Address" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="date" name="dob" placeholder="Date of Birth" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="phone" placeholder="Phone Number" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="whatsapp" placeholder="Whatsapp Number" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border text-white" />
+            <select name="studiedBefore" onChange={handleChange} className="p-4 rounded-md bg-white/10 border text-white">
+              <option value="NO">NO</option>
+              <option value="YES">YES</option>
+            </select>
+            <input type="text" name="prevInstitute" placeholder="Previous Institute" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="studyYears" placeholder="Years of Study" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="lastMadrassaClass" placeholder="Last Class in Madrassa" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border text-white" />
+            <input type="text" name="lastSchoolClass" placeholder="Last Class in School" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border text-white" />
             <label className="text-white">Aadhaar: <input type="file" name="aadhaar" onChange={handleChange} className="block text-white" /></label>
             <label className="text-white">School Transfer Certificate (TC): <input type="file" name="tc" onChange={handleChange} className="block text-white" /></label>
-            <label className="text-white">Pupil's Photo: <input type="file" name="pupilPhoto" onChange={handleChange} className="block text-white" /></label>
+            <label className="text-white">Pupils Photo: <input type="file" name="pupilPhoto" onChange={handleChange} className="block text-white" /></label>
             <label className="text-white">Signature: <input type="file" name="signature" onChange={handleChange} className="block text-white" /></label>
-            <label className="text-white">Studied in any institution before?: 
-              <select name="studiedBefore" onChange={handleChange} className="p-2 rounded-md bg-white/10 border text-white">
-                <option value="NO">NO</option>
-                <option value="YES">YES</option>
-              </select>
-            </label>
-            <input type="text" name="prevInstitute" placeholder="Previous Institute" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="studyYears" placeholder="Years of Study" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="lastMadrassaClass" placeholder="Last Class in Madrassa" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="lastSchoolClass" placeholder="Last Class in School" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
           </div>
-          <button type="submit" className="mt-6 bg-green-500 hover:bg-green-400 text-white font-bold py-4 px-8 rounded-xl shadow-xl">
-            Submit Admission
+          <button type="submit" className="mt-6 bg-green-500 hover:bg-green-400 text-white font-bold py-4 px-8 rounded-xl shadow-xl" disabled={loading}>
+            {loading ? "Submitting..." : "Submit Admission"}
           </button>
         </form>
       </section>
     </div>
   );
 }
+
 
 
 app->api->admin->route.js
@@ -708,7 +741,7 @@ export async function GET(req) {
         const db = client.db("admission_management");
 
         // Fetch all users
-        const users = await db.collection("users").find({}, { projection: { _id: 1, userName: 1, email: 1, contact: 1, institute: 1, role: 1 } }).toArray();
+        const users = await db.collection("users").find({}, { projection: { _id: 1, name: 1, email: 1, phone: 1, institute: 1, role: 1 } }).toArray();
 
         if (!users || users.length === 0) {
             return NextResponse.json({ error: "No users found" }, { status: 404 });
@@ -724,52 +757,78 @@ export async function GET(req) {
 
 
 
+
 app->api->admissions->route.js
+import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-import Admission from '@/lib/admissionModel';
+import { auth } from "@/lib/firebase";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
-export async function POST(req) {
-  try {
-    const formData = await req.json();
+export async function POST(request) {
+    try {
+        const formData = await request.formData();
+        console.log("📤 Received Admission Data:", formData);
 
-    const client = await clientPromise;
-    const db = client.db("admission_management");
+        // Extracting fields from FormData
+        const extractedData = {};
+        for (const [key, value] of formData.entries()) {
+            extractedData[key] = value;
+        }
 
-    // Insert admission data into MongoDB
-    const result = await db.collection("admissions").insertOne(formData);
+        const {
+            name, fatherName, motherName, guardianName, relation,
+            address, dob, phone, whatsapp, email, password, institute,
+            studiedBefore, prevInstitute, studyYears, lastMadrassaClass, lastSchoolClass
+        } = extractedData;
 
-    if (!result.acknowledged) {
-      throw new Error("Failed to insert admission data");
+        // Handle File Uploads (Here, we store file names. You can integrate Cloudinary or Firebase Storage)
+        const aadhaar = formData.get("aadhaar")?.name || null;
+        const tc = formData.get("tc")?.name || null;
+        const pupilPhoto = formData.get("pupilPhoto")?.name || null;
+        const signature = formData.get("signature")?.name || null;
+
+        if (!email || !password || !name || !phone || !institute) {
+            return NextResponse.json({ error: "❌ Missing required fields" }, { status: 400 });
+        }
+
+        const client = await clientPromise;
+        const db = client.db("admission_management");
+
+        // Check if first user should be admin
+        const userCount = await db.collection("users").countDocuments();
+        let role = userCount === 0 ? "admin" : userCount === 1 ? "subadmin" : "user";
+
+        // Create user in Firebase Authentication
+        let user;
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            user = userCredential.user;
+            console.log("✅ Firebase User Created:", user.uid);
+        } catch (firebaseError) {
+            return NextResponse.json({ error: firebaseError.message }, { status: 500 });
+        }
+
+        await db.collection("admissions").insertOne({
+            uid: user.uid,
+            name, fatherName, motherName, guardianName, relation,
+            address, dob, phone, whatsapp, email, institute,
+            studiedBefore, prevInstitute, studyYears, lastMadrassaClass, lastSchoolClass,
+            aadhaar, tc, pupilPhoto, signature,
+            createdAt: new Date()
+        });
+
+        await db.collection("users").insertOne({
+            uid: user.uid,
+            name, email, phone, institute, role,
+            createdAt: new Date()
+        });
+
+        return NextResponse.json({ message: "✅ Admission and user registration successful", role }, { status: 201 });
+
+    } catch (error) {
+        return NextResponse.json({ error: "❌ Internal server error" }, { status: 500 });
     }
-
-    return new Response(JSON.stringify({ message: "Admission submitted successfully" }), { status: 200 });
-
-  } catch (error) {
-    console.error("Error submitting admission:", error);
-    return new Response(JSON.stringify({ error: "Error submitting admission" }), { status: 500 });
-  }
 }
-
-// Fetch admissions for admin
-export async function GET() {
-  try {
-    const client = await clientPromise;
-    const db = client.db("admission_management");
-
-    const admissions = await db.collection("admissions").find({}).toArray();
-
-    if (!admissions || admissions.length === 0) {
-      return new Response(JSON.stringify({ error: "No admissions found" }), { status: 404 });
-    }
-
-    return new Response(JSON.stringify(admissions), { status: 200 });
-
-  } catch (error) {
-    console.error("Error fetching admissions:", error);
-    return new Response(JSON.stringify({ error: "Error fetching admissions" }), { status: 500 });
-  }
-}
-
 
 
 
@@ -811,6 +870,45 @@ export async function POST(req) {
     }
 }
 
+
+
+app->api->subadmin->route.js
+
+// admission-management/src/app/api/subadmin/route.js
+export async function GET() {
+    return NextResponse.json({ message: 'Subadmin-specific data' });
+}
+
+app->api->users->route.js
+import { NextResponse } from "next/server";
+import clientPromise from "@/lib/mongodb";
+
+export async function GET(req) {
+    try {
+        const url = new URL(req.url);
+        const email = url.searchParams.get("email");
+
+        if (!email) {
+            return NextResponse.json({ error: "Email is required" }, { status: 400 });
+        }
+
+        const client = await clientPromise;
+        const db = client.db("admission_management");
+        const user = await db.collection("users").findOne({ email });
+
+        if (!user) {
+            console.log("❌ User not found in database.");
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        console.log(`✅ User Found: ${user.email}, Role: ${user.role}`);
+        return NextResponse.json({ role: user.role }, { status: 200 });
+
+    } catch (error) {
+        console.error("❌ Error fetching user:", error);
+        return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
+    }
+}
 
 
 app->login->page.jsx
@@ -906,7 +1004,6 @@ export default function SubAdminPage() {
 }
 
 
-
 app->subadmin->profile->page.jsx
 
 // admission-management/src/app/subadmin/profile/page.js
@@ -996,7 +1093,6 @@ export default function UserProfile() {
         </div>
     );
 }
-
 
 
 
@@ -1224,6 +1320,7 @@ export function useAuth() {
     return useContext(AuthContext);
 }
 
+
 src->lib->admissionModel.js
 
 import mongoose from 'mongoose';
@@ -1252,7 +1349,6 @@ const admissionSchema = new mongoose.Schema({
 const Admission = mongoose.models.Admission || mongoose.model('Admission', admissionSchema);
 
 export default Admission;
-
 
 
 
@@ -1317,6 +1413,7 @@ export default clientPromise;
 
 
 
+
 src->middleware->authMiddleware.js
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
@@ -1325,7 +1422,7 @@ export async function middleware(req) {
     const { pathname } = req.nextUrl;
     const authToken = req.cookies.get("authToken"); // Firebase session cookie
 
-    if (!authToken && ["/login", "/register"].includes(pathname)) {
+    if (!authToken && ["/login", "/register", "/admission"].includes(pathname)) {
         return NextResponse.next();
     }
 
@@ -1444,6 +1541,7 @@ module.exports = {
     "tailwindcss": "^3.4.17"
   }
 }
+
 
 
 
