@@ -40,12 +40,24 @@ export default function Admission() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
-    // MongoDB API Integration will be added here
+    
+    const response = await fetch('/api/admissions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    });
+  
+    if (response.ok) {
+      alert('Admission submitted successfully!');
+    } else {
+      alert('Error submitting admission');
+    }
   };
-
+  
   return (
     <div className="bg-gradient-to-b from-green-900 to-green-800 text-white min-h-screen">
       {/* Admission Form */}
