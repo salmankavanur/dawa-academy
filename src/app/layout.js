@@ -20,6 +20,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
+       <Head>
+        <meta name="description" content="Islamic Dawa Academy - Quality Quranic and Islamic education" />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="Best Integrated Study Centre for Huffaz - Islamic Dawa Academy" />
+        <meta property="og:description" content="Special Integrated Curriculum for Huffaz Students" />
+        <meta property="og:image" content="/images/og-image.png" />
+        <meta property="og:url" content="https://www.dawaacademy.in" />
+      </Head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
