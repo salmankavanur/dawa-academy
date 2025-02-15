@@ -1,37 +1,118 @@
-import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons"; 
-import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import "@fontsource/anek-malayalam";  
-import "@fontsource/poppins";   
+"use client";
 
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import "@fontsource/anek-malayalam";
+import "@fontsource/poppins";
+
+// Navbar Component
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  const navItems = [
+    { name: 'About', href: '#about' },
+    { name: 'Features', href: '#features' },
+    { name: 'Contact', href: '#contact' },
+    { name: 'Admission', href: '/admission' },
+  ];
+
+  return (
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      scrolled ? 'bg-green-800/95 backdrop-blur-md shadow-lg py-2' : 'bg-transparent py-4'
+    }`}>
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="relative w-12 h-12 overflow-hidden rounded-lg">
+              <Image 
+                src="/images/Logo.png"
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                alt="Islamic Dawa Academy Logo"
+              />
+            </div>
+            <span className="text-xl font-bold text-white font-['Poppins']">
+              Islamic Dawa Academy
+            </span>
+          </Link>
+
+          <div className="hidden md:flex items-center space-x-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="px-4 py-2 text-white rounded-lg font-['Poppins'] transition-all duration-300 hover:bg-green-700/50 hover:text-green-200"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-green-700/50 transition-colors"
+            aria-label="Toggle Menu"
+          >
+            <div className="w-6 h-6 relative">
+              <span className={`absolute h-0.5 w-full bg-white transform transition-all duration-300 ${
+                isOpen ? 'rotate-45 top-3' : 'rotate-0 top-1'
+              }`} />
+              <span className={`absolute h-0.5 w-full bg-white transform transition-all duration-300 top-3 ${
+                isOpen ? 'opacity-0' : 'opacity-100'
+              }`} />
+              <span className={`absolute h-0.5 w-full bg-white transform transition-all duration-300 ${
+                isOpen ? '-rotate-45 top-3' : 'rotate-0 top-5'
+              }`} />
+            </div>
+          </button>
+        </div>
+
+        <div className={`md:hidden transition-all duration-300 ease-in-out ${
+          isOpen ? 'max-h-96 opacity-100 visible mt-4' : 'max-h-0 opacity-0 invisible mt-0'
+        }`}>
+          <div className="py-2 space-y-1">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="block px-4 py-2 text-white rounded-lg font-['Poppins'] transition-all duration-300 hover:bg-green-700/50 hover:text-green-200"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+// Main Home Component
 export default function Home() {
   return (
     <div className="bg-gradient-to-b from-green-900 to-green-800 text-white min-h-screen">
-      {/* Navigation Bar */}
-      <nav className="backdrop-blur-sm bg-green-800/80 fixed w-full z-50 shadow-lg p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div className="flex items-center">
-            <Image src="/images/Logo.png" width={50} height={50} alt="Institute Logo" className="rounded-lg hover:scale-105 transition-transform" />
-            <h1 className="ml-3 text-2xl font-bold font-['Poppins']">Islamic Dawa Academy</h1>
-          </div>
-          <div className="md:hidden flex items-center">
-            <button id="menu-toggle" className="text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-          <ul id="menu" className="hidden md:flex space-x-8 text-lg font-['Poppins']">
-            <li><Link href="#about" className="hover:text-green-300 transition-colors">About</Link></li>
-            <li><Link href="#features" className="hover:text-green-300 transition-colors">Features</Link></li>
-            <li><Link href="#contact" className="hover:text-green-300 transition-colors">Contact</Link></li>
-            <li><Link href="/admission" className="hover:text-green-300 transition-colors">Admission</Link></li>
-          </ul>
-        </div>
-      </nav>
-
+      <Navbar />
+      
       {/* Hero Section */}
       <header className="relative min-h-screen flex items-center justify-center p-10 bg-[url('/images/pattern.png')] bg-cover bg-center">
         <div className="absolute inset-0 bg-green-900/70 backdrop-blur-sm"></div>
