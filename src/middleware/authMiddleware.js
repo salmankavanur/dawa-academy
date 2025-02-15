@@ -5,7 +5,7 @@ export async function middleware(req) {
     const { pathname } = req.nextUrl;
     const authToken = req.cookies.get("authToken"); // Firebase session cookie
 
-    if (!authToken && ["/login", "/register"].includes(pathname)) {
+    if (!authToken && ["/login", "/register", "/admission"].includes(pathname)) {
         return NextResponse.next();
     }
 

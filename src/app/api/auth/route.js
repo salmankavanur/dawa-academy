@@ -6,11 +6,11 @@ export async function POST(req) {
     try {
         const { email, password } = await req.json();
 
-        // Firebase login
+        // Firebase Authentication
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Fetch user data from MongoDB
+        // Fetch user details from MongoDB
         const client = await clientPromise;
         const db = client.db("admission_management");
         const dbUser = await db.collection("users").findOne({ email });
@@ -19,7 +19,7 @@ export async function POST(req) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        console.log(`✅ User Role: ${dbUser.role}`);
+        console.log(`✅ User Logged In: ${dbUser.email}, Role: ${dbUser.role}`);
 
         return NextResponse.json({ 
             role: dbUser.role, 

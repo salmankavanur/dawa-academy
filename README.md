@@ -13,8 +13,6 @@ admission-management/
 │   │   │   │   ├── route.js 
 |   |   |   |   ├── users/
 |   |   |   |       ├──route.js
-│   │   │   ├── register/
-│   │   │   │   ├── route.js 
 │   │   │   ├── subadmin/
 │   │   │   │   ├── route.js         
 │   │   │   ├── admissions/
@@ -36,8 +34,6 @@ admission-management/
 |   |   |   ├── profile/ 
 │   │   │   │   ├── page.jsx                  
 │   │   ├── login/
-│   │   │   ├── page.jsx                
-│   │   ├── register/
 │   │   │   ├── page.jsx                
 │   │   ├── layout.js                    
 │   │   ├── page.jsx                    
@@ -64,39 +60,140 @@ admission-management/
 │── next.config.mjs                          
 │── package.json                           
 │── postcss.config.js 
-│── postcss.config.mjs 
 │── tailwind.config.js
-│── tailwind.config.mjs                             
 
 
 
 src->app->page.jsx
-import Image from "next/image";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons"; 
-import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
-import "@fontsource/anek-malayalam";  
-import "@fontsource/poppins";   
+"use client";
 
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import "@fontsource/anek-malayalam";
+import "@fontsource/poppins";
+
+// Enhanced Navbar Component
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
+  const navItems = [
+    { name: 'About', href: '#about' },
+    { name: 'Features', href: '#features' },
+    { name: 'Contact', href: '#contact' },
+    { name: 'Admission', href: '/admission' },
+  ];
+
+  return (
+    <nav 
+      className={`fixed w-full z-50 transition-all duration-500 ${
+        scrolled 
+          ? 'bg-green-800/90 backdrop-blur-md shadow-lg py-2' 
+          : 'bg-transparent py-4'
+      }`}
+    >
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between">
+          <Link 
+            href="/" 
+            className="flex items-center space-x-3 group transition-transform duration-300 hover:scale-105"
+          >
+            <div className="relative w-12 h-12 overflow-hidden rounded-xl shadow-lg">
+              <Image 
+                src="/images/Logo.png"
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-110"
+                alt="Islamic Dawa Academy Logo"
+                priority
+              />
+            </div>
+            <span className="text-xl font-bold text-white font-['Poppins'] tracking-wide">
+              Islamic Dawa Academy
+            </span>
+          </Link>
+
+          <div className="hidden md:flex items-center space-x-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="px-4 py-2 text-white rounded-lg font-['Poppins'] transition-all duration-300 
+                  hover:bg-green-700/50 hover:text-green-200 hover:scale-105 
+                  active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 rounded-lg hover:bg-green-700/50 transition-all duration-300
+              active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
+            aria-label="Toggle Menu"
+          >
+            <div className="w-6 h-6 relative">
+              <span className={`absolute h-0.5 w-full bg-white transform transition-all duration-300 ${
+                isOpen ? 'rotate-45 top-3' : 'rotate-0 top-1'
+              }`} />
+              <span className={`absolute h-0.5 w-full bg-white transform transition-all duration-300 top-3 ${
+                isOpen ? 'opacity-0' : 'opacity-100'
+              }`} />
+              <span className={`absolute h-0.5 w-full bg-white transform transition-all duration-300 ${
+                isOpen ? '-rotate-45 top-3' : 'rotate-0 top-5'
+              }`} />
+            </div>
+          </button>
+        </div>
+
+        <div className={`md:hidden transition-all duration-500 ease-in-out ${
+          isOpen ? 'max-h-96 opacity-100 visible mt-4' : 'max-h-0 opacity-0 invisible mt-0'
+        }`}>
+          <div className="py-2 space-y-1 backdrop-blur-sm bg-green-800/50 rounded-xl px-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="block px-4 py-3 text-white rounded-lg font-['Poppins'] transition-all duration-300
+                  hover:bg-green-700/50 hover:text-green-200 active:scale-95
+                  focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
+                onClick={() => setIsOpen(false)}
+              >
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+// Main Home Component
 export default function Home() {
   return (
     <div className="bg-gradient-to-b from-green-900 to-green-800 text-white min-h-screen">
-      {/* Navigation Bar */}
-      <nav className="backdrop-blur-sm bg-green-800/80 fixed w-full z-50 shadow-lg p-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <Image src="/images/Logo.png" width={50} height={50} alt="Institute Logo" className="rounded-lg hover:scale-105 transition-transform" />
-          <ul className="flex space-x-8 text-lg font-['Poppins']">
-            <li><Link href="#about" className="hover:text-green-300 transition-colors">About</Link></li>
-            <li><Link href="#features" className="hover:text-green-300 transition-colors">Features</Link></li>
-            <li><Link href="#contact" className="hover:text-green-300 transition-colors">Contact</Link></li>
-            <li><Link href="/admission" className="hover:text-green-300 transition-colors">Admission</Link></li>
-
-          </ul>
-        </div>
-      </nav>
+      <Navbar />
       
-      {/* Hero Section - Further Simplified */}
+      {/* Original Hero Section */}
       <header className="relative min-h-screen flex items-center justify-center p-10 bg-[url('/images/pattern.png')] bg-cover bg-center">
         <div className="absolute inset-0 bg-green-900/70 backdrop-blur-sm"></div>
         <div className="relative z-10 flex flex-col items-center max-w-4xl mx-auto text-center">
@@ -107,10 +204,10 @@ export default function Home() {
             alt="Hero Image" 
             className="mb-8 hover:scale-105 transition-transform duration-300"
           />
-          <h1 className="text-6xl font-bold font-malayalam mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
+          <h1 className="text-4xl sm:text-6xl font-bold font-malayalam mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
             ഹാഫിളീങ്ങൾക്കായി
           </h1>
-          <p className="text-xl font-malayalam mb-8">സ്പെഷ്യൽ ഇന്റഗ്രേറ്റഡ് സിലബസ്</p>
+          <p className="text-xl sm:text-2xl font-malayalam mb-8">സ്പെഷ്യൽ ഇന്റഗ്രേറ്റഡ് സിലബസ്</p>
           <Link
             href="https://wa.me/919656833399"
             className="group inline-flex items-center bg-green-500 hover:bg-green-400 text-white text-lg font-bold py-4 px-8 rounded-full shadow-xl transition-all hover:-translate-y-1"
@@ -124,90 +221,138 @@ export default function Home() {
       {/* About Section */}
       <section id="about" className="container mx-auto px-6 py-24">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-5xl font-bold mb-8 font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
+          <h2 className="text-3xl sm:text-5xl font-bold mb-8 font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
             About Islamic Dawa Academy
           </h2>
-          <p className="text-xl text-gray-300 font-['Poppins'] leading-relaxed">
+          <p className="text-lg sm:text-xl text-white-300 font-['Poppins'] leading-relaxed">
             Islamic Dawa Academy provides high-quality Quranic and Islamic education
             with an integrated syllabus tailored for Huffaz students.
           </p>
         </div>
       </section>
 
- {/* Features Section */}
- <section id="features" className="container mx-auto px-6 py-24">
-        <h2 className="text-5xl font-bold mb-16 text-center font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
+      {/* Features Section */}
+      <section id="features" className="container mx-auto px-6 py-24">
+        <h2 className="text-3xl sm:text-5xl font-bold mb-16 text-center font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
           Our Features
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {[
-            {
-              title: "Comprehensive Curriculum",
-              description: "Integrated syllabus covering Quran, Islamic studies, and academics."
-            },
-            {
-              title: "Experienced Scholars",
-              description: "Qualified instructors providing exceptional religious guidance."
-            },
-            {
-              title: "Modern Learning Facilities",
-              description: "State-of-the-art classrooms and digital resources."
-            },
-            {
-              title: "Quranic Research Study",
-              description: "Advanced research in Quranic sciences and interpretation."
-            },
-            {
-              title: "Special Doura Sessions",
-              description: "Exclusive lectures and interactive learning sessions."
-            },
-            {
-              title: "Integrated Dual Degree & P.G",
-              description: "Earn dual academic and Islamic degrees together."
-            },
-            {
-              title: "Multi-Linguistic Skills",
-              description: "Develop fluency in multiple languages including Arabic and English."
-            },
-            {
-              title: "Eco-Friendly Campus",
-              description: "Green, sustainable environment for better learning."
-            },
-            {
-              title: "Media Hub & I.T Lab",
-              description: "Technology-driven learning with modern media tools."
-            },
-            {
-              title: "Digital Library",
-              description: "Access vast resources through an extensive digital library."
-            },
-            {
-              title: "Skills Development",
-              description: "Practical training to enhance student capabilities."
-            },
-            {
-              title: "Creative Development",
-              description: "Encouraging creativity and critical thinking."
-            },
-         
-          ].map((feature, index) => (
-            <div key={index} className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
-              <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
-                {feature.title}
-              </h3>
-              <p className="text-gray-300 font-['Poppins']">{feature.description}</p>
-            </div>
-          ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+              High-Quality Quranic Education
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+              A special syllabus integrated with advanced memorization techniques and guidance for Huffaz students.
+            </p>
+          </div>
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+              Experienced Teachers
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+              Our teachers have years of experience in Quranic studies, making your learning journey smooth and effective.
+            </p>
+          </div>
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Modern Learning Facilities
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Dawa Academy Provide Modern Learning Facilities for the students for their bright future such as Smart Class Room, Digital Studio & IT LAB, etc.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Quranic Research Study
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Advanced research in Quranic sciences and interpretation.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Special Doura Sessions
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Exclusive lectures and interactive learning sessions.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Integrated Dual Degree & P.G
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Earn dual academic and Islamic degrees together.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Multi-Linguistic Skills
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Develop fluency in multiple languages including Arabic and English.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Eco-Friendly Campus
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Green, sustainable environment for better learning.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Media Hub & I.T Lab
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Technology-driven learning with modern media tools.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Digital Library
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Access vast resources through an extensive digital library.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Skills Development
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Practical training to enhance student capabilities.
+            </p>
+          </div>
+
+          <div className="group p-8 bg-green-700/50 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:-translate-y-2">
+            <h3 className="text-2xl font-bold font-['Poppins'] mb-4 group-hover:text-green-300 transition-colors">
+            Creative Development
+            </h3>
+            <p className="text-white-300 font-['Poppins']">
+            Encouraging creativity and critical thinking.
+            </p>
+          </div>
+
         </div>
       </section>
 
       {/* Contact Section */}
       <section id="contact" className="container mx-auto px-6 py-24">
-        <h2 className="text-5xl font-bold mb-16 text-center font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
+        <h2 className="text-3xl sm:text-5xl font-bold mb-16 text-center font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
           Contact Us
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {/* Contact Info - 1/3 width */}
+          {/* Contact Info */}
           <div className="bg-green-700/50 backdrop-blur-sm p-8 rounded-2xl shadow-xl space-y-6">
             <div className="flex items-center space-x-4">
               <div className="bg-green-600 p-3 rounded-full">
@@ -232,30 +377,34 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Contact Form - 2/3 width */}
+          {/* Contact Form */}
           <div className="md:col-span-2 bg-green-700/50 backdrop-blur-sm p-8 rounded-2xl shadow-xl">
             <h3 className="text-2xl font-bold font-['Poppins'] mb-6">Send Us a Message</h3>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form action="#" method="POST" className="space-y-4">
               <input 
                 type="text" 
+                name="name" 
                 placeholder="Your Name" 
-                className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-green-600/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none" 
-                required 
+                className="w-full py-3 px-6 rounded-lg bg-transparent border border-green-600/30 text-white placeholder-white-400 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none" 
+                required
               />
               <input 
                 type="email" 
+                name="email" 
                 placeholder="Your Email" 
-                className="p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-green-600/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none" 
-                required 
+                className="w-full py-3 px-6 rounded-lg bg-transparent border border-green-600/30 text-white placeholder-white-400 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none" 
+                required
               />
-              <textarea 
-                placeholder="Your Message" 
-                className="md:col-span-2 p-4 rounded-xl bg-white/10 backdrop-blur-sm border border-green-600/30 text-white placeholder-gray-400 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none h-32" 
+              <textarea
+                name="message"
+                placeholder="Your Message"
+                rows="6"
+                className="w-full py-3 px-6 rounded-lg bg-transparent border border-green-600/30 text-white placeholder-white-400 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
                 required
               ></textarea>
               <button 
                 type="submit" 
-                className="md:col-span-2 bg-green-500 hover:bg-green-400 text-white font-bold py-4 px-8 rounded-xl shadow-xl transition-all hover:-translate-y-1"
+                className="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-6 rounded-full sm:col-span-2"
               >
                 Send Message
               </button>
@@ -264,18 +413,16 @@ export default function Home() {
         </div>
       </section>
 
-    {/* Footer Section */}
-    <footer className="bg-green-900 text-center py-6 mt-10">
-        <p className="text-gray-400 font-['Poppins']">
-          © Islamic Dawa Academy, Akode | Powered by <Link href="https://aicedu.in" className="text-green-400 hover:text-green-300">Akode Islamic Centre</Link>
+      {/* Footer */}
+      <footer className="bg-green-900 text-center py-8">
+        <p className="text-lg font-['Poppins'] text-white">
+          © 2025 Islamic Dawa Academy | All rights reserved
         </p>
       </footer>
-
-      
     </div>
-    
   );
 }
+
 
 
 
@@ -283,31 +430,23 @@ export default function Home() {
 app->layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
+import { AuthProvider } from "@/context/AuthContext"; // Import AuthProvider
 
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
+const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata = {
   title: "Integrated Study Centre for Huffaz in Malabar | Islamic Dawa Academy",
-  description: "Best campus for huffaz for the higher education to be a better person with outstanding skills.",
+  description: "Best campus for huffaz for higher education with outstanding skills.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AuthProvider>  {/* ✅ Wrap the entire app with AuthProvider */}
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
@@ -329,16 +468,18 @@ export default function AdminPage() {
     const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
-        if (loading) return; // Wait until authentication state is resolved
+        if (loading) return;
 
         if (!user || role !== "admin") {
-            router.push("/login");
+            router.push("/login"); // Redirect unauthorized users
         } else {
             setAuthorized(true);
         }
     }, [user, role, loading]);
 
-    if (loading || !authorized) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    if (loading || !authorized) {
+        return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    }
 
     return (
         <div>
@@ -550,8 +691,6 @@ export default function Admission() {
 }
 
 
-
-
 app->api->admin->route.js
 // admission-management/src/app/api/admin/route.js
 export async function GET() {
@@ -589,18 +728,45 @@ app->api->admissions->route.js
 import clientPromise from "@/lib/mongodb";
 import Admission from '@/lib/admissionModel';
 
-export async function POST(request) {
-  const formData = await request.json();
-
+export async function POST(req) {
   try {
-    await clientPromise;
+    const formData = await req.json();
 
-    const newAdmission = new Admission(formData);
-    await newAdmission.save();
+    const client = await clientPromise;
+    const db = client.db("admission_management");
 
-    return new Response('Admission submitted successfully', { status: 200 });
+    // Insert admission data into MongoDB
+    const result = await db.collection("admissions").insertOne(formData);
+
+    if (!result.acknowledged) {
+      throw new Error("Failed to insert admission data");
+    }
+
+    return new Response(JSON.stringify({ message: "Admission submitted successfully" }), { status: 200 });
+
   } catch (error) {
-    return new Response('Error submitting admission', { status: 500 });
+    console.error("Error submitting admission:", error);
+    return new Response(JSON.stringify({ error: "Error submitting admission" }), { status: 500 });
+  }
+}
+
+// Fetch admissions for admin
+export async function GET() {
+  try {
+    const client = await clientPromise;
+    const db = client.db("admission_management");
+
+    const admissions = await db.collection("admissions").find({}).toArray();
+
+    if (!admissions || admissions.length === 0) {
+      return new Response(JSON.stringify({ error: "No admissions found" }), { status: 404 });
+    }
+
+    return new Response(JSON.stringify(admissions), { status: 200 });
+
+  } catch (error) {
+    console.error("Error fetching admissions:", error);
+    return new Response(JSON.stringify({ error: "Error fetching admissions" }), { status: 500 });
   }
 }
 
@@ -616,12 +782,12 @@ import clientPromise from "@/lib/mongodb";
 export async function POST(req) {
     try {
         const { email, password } = await req.json();
-        
-        // Sign in the user with Firebase Auth
+
+        // Firebase Authentication
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
-        // Fetch the user from MongoDB
+        // Fetch user details from MongoDB
         const client = await clientPromise;
         const db = client.db("admission_management");
         const dbUser = await db.collection("users").findOne({ email });
@@ -630,7 +796,15 @@ export async function POST(req) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json({ role: dbUser.role, redirectTo: dbUser.role === "admin" ? "/admin" : dbUser.role === "subadmin" ? "/subadmin" : "/user" }, { status: 200 });
+        console.log(`✅ User Logged In: ${dbUser.email}, Role: ${dbUser.role}`);
+
+        return NextResponse.json({ 
+            role: dbUser.role, 
+            redirectTo: dbUser.role === "admin" ? "/admin" 
+                     : dbUser.role === "subadmin" ? "/subadmin" 
+                     : "/user" 
+        }, { status: 200 });
+
     } catch (error) {
         console.error("Login Error:", error.message);
         return NextResponse.json({ error: error.message }, { status: 400 });
@@ -638,156 +812,46 @@ export async function POST(req) {
 }
 
 
-app->api->register->route.js
-import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
-
-export async function POST(req) {
-    try {
-        const { uid, userName, email, contact, institute } = await req.json();
-        const client = await clientPromise;
-        const db = client.db("admission_management");
-
-        // Check if user already exists
-        const existingUser = await db.collection("users").findOne({ email });
-        let role = "user"; // Default role is user
-
-        if (!existingUser) {
-            const adminExists = await db.collection("users").findOne({ role: "admin" });
-            const subadminExists = await db.collection("users").findOne({ role: "subadmin" });
-
-            if (!adminExists) {
-                role = "admin"; // First user becomes admin
-            } else if (!subadminExists) {
-                role = "subadmin"; // Second user becomes subadmin
-            }
-        } else {
-            role = existingUser.role; // Maintain existing role
-        }
-
-        // Store or update user in MongoDB with the correct role
-        await db.collection("users").updateOne(
-            { email },
-            { $set: { uid, userName, email, contact, institute, role } },
-            { upsert: true }
-        );
-
-        console.log(`✅ User Registered - Role: ${role}`);
-        return NextResponse.json({ message: "User registered successfully", role }, { status: 200 });
-    } catch (error) {
-        console.error("❌ Registration Error:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-}
-
-
-app->api->subadmin->route.js 
-
-// admission-management/src/app/api/subadmin/route.js
-export async function GET() {
-    return NextResponse.json({ message: 'Subadmin-specific data' });
-}
-
-app->api->users->route.js 
-import { NextResponse } from "next/server";
-import clientPromise from "@/lib/mongodb";
-
-export async function GET(req) {
-    try {
-        const url = new URL(req.url);
-        const email = url.searchParams.get("email");
-
-        if (!email) {
-            return NextResponse.json({ error: "Email is required" }, { status: 400 });
-        }
-
-        const client = await clientPromise;
-        const db = client.db("admission_management");
-        const user = await db.collection("users").findOne({ email });
-
-        if (!user) {
-            console.log("❌ User not found in database.");
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
-
-        console.log(`✅ User Found: ${user.email}, Role: ${user.role}`);
-        return NextResponse.json({ role: user.role }, { status: 200 });
-
-    } catch (error) {
-        console.error("❌ Error fetching user:", error);
-        return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
-    }
-}
-
 
 app->login->page.jsx
 
-// Updated Login Page
 "use client";
 
 import { useState, useEffect } from "react";
-import { auth, signInWithEmailAndPassword, googleProvider, signInWithPopup } from "@/lib/firebase";
+import { auth, signInWithEmailAndPassword } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext"; // ✅ Ensure correct import
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const router = useRouter();
-    const { user, role, setUser, setRole } = useAuth();
+    const { user, role, setUser, setRole, loading } = useAuth(); // ✅ Ensure setUser and setRole exist
 
     useEffect(() => {
-        if (user && role) {
-            console.log(`🔹 Redirecting to ${role} page`);
+        if (!loading && user && role) {
             const redirectTo = role === "admin" ? "/admin" : role === "subadmin" ? "/subadmin" : "/user";
             router.push(redirectTo);
         }
-    }, [user, role, router]);
+    }, [user, role, loading]);
 
     const handleLogin = async () => {
         try {
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const loggedUser = userCredential.user;
-            console.log("🔹 Logged in user:", loggedUser.email);
 
             const response = await fetch(`/api/users?email=${loggedUser.email}`);
             const userData = await response.json();
 
             if (userData?.role) {
-                console.log(`✅ Role after login: ${userData.role}`);
                 setUser(loggedUser);
                 setRole(userData.role);
-                const redirectTo = userData.role === "admin" ? "/admin" : userData.role === "subadmin" ? "/subadmin" : "/user";
-                router.push(redirectTo);
+                router.push(userData.role === "admin" ? "/admin" : userData.role === "subadmin" ? "/subadmin" : "/user");
             } else {
                 setErrorMessage("Role not found. Please contact support.");
             }
         } catch (error) {
-            console.error("❌ Login error:", error);
-            setErrorMessage(error.message);
-        }
-    };
-
-    const handleGoogleLogin = async () => {
-        try {
-            const result = await signInWithPopup(auth, googleProvider);
-            const googleUser = result.user;
-            console.log("🔹 Google login user:", googleUser.email);
-
-            const response = await fetch(`/api/users?email=${googleUser.email}`);
-            const userData = await response.json();
-
-            if (userData?.role) {
-                setUser(googleUser);
-                setRole(userData.role);
-                const redirectTo = userData.role === "admin" ? "/admin" : userData.role === "subadmin" ? "/subadmin" : "/user";
-                router.push(redirectTo);
-            } else {
-                setErrorMessage("Google login is only available for registered users.");
-            }
-        } catch (error) {
-            console.error("❌ Google Login Error:", error);
             setErrorMessage(error.message);
         }
     };
@@ -795,94 +859,42 @@ export default function LoginPage() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-green-500 to-blue-500 px-4">
             <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-                <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Login</h1>
+                <h1 className="text-3xl font-bold mb-6 text-center">Login</h1>
                 {errorMessage && <p className="text-red-500 text-center mb-4">{errorMessage}</p>}
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500" />
-                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500" />
-                <button onClick={handleLogin} className="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded text-lg transition duration-300">Login</button>
-                <button onClick={handleGoogleLogin} className="w-full bg-red-500 hover:bg-red-600 text-white p-3 rounded text-lg mt-4 transition duration-300">Login with Google</button>
+                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 mb-4 border rounded" />
+                <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 mb-4 border rounded" />
+                <button onClick={handleLogin} className="w-full bg-green-600 text-white p-3 rounded">Login</button>
             </div>
         </div>
     );
 }
 
 
-app->register->page.jsx
-// admission-management/src/app/register/page.js
-"use client";
-
-import { useState } from "react";
-import { auth, createUserWithEmailAndPassword } from "@/lib/firebase";
-import { useRouter } from "next/navigation";
-
-export default function RegisterPage() {
-    const [userName, setUserName] = useState("");
-    const [email, setEmail] = useState("");
-    const [contact, setContact] = useState("");
-    const [institute, setInstitute] = useState("");
-    const [password, setPassword] = useState("");
-    const router = useRouter();
-
-    const handleRegister = async () => {
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            const user = userCredential.user;
-
-            // Call API to store user in MongoDB
-            await fetch("/api/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ uid: user.uid, userName, email, contact, institute }),
-            });
-
-            router.push("/login");
-        } catch (error) {
-            alert(error.message);
-        }
-    };
-
-    return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-green-500 to-blue-500 px-4">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-                <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Register</h1>
-                <input type="text" placeholder="User Name" onChange={(e) => setUserName(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500" />
-                <input type="email" placeholder="Email" onChange={(e) => setEmail(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500" />
-                <input type="text" placeholder="Contact" onChange={(e) => setContact(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500" />
-                <select onChange={(e) => setInstitute(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500">
-                    <option value="">Select Institute</option>
-                    <option value="Islamic Da'wa Academy">Islamic Da'wa Academy</option>
-                    <option value="Daiya Islamic Academy for Women">Daiya Islamic Academy for Women</option>
-                    <option value="Hifzul Quran College">Hifzul Quran College</option>
-                </select>
-                <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} className="w-full p-3 mb-4 border rounded focus:ring-2 focus:ring-green-500" />
-                <button onClick={handleRegister} className="w-full bg-green-600 hover:bg-green-700 text-white p-3 rounded text-lg transition duration-300">Register</button>
-            </div>
-        </div>
-    );
-}
 
 
 app->subadmin->page.jsx
-// admission-management/src/app/subadmin/page.js
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SubAdminPage() {
     const { user, role, loading } = useAuth();
     const router = useRouter();
+    const [authorized, setAuthorized] = useState(false);
 
     useEffect(() => {
-        if (loading) return; // Wait until loading completes
+        if (loading) return;
 
         if (!user || role !== "subadmin") {
             router.push("/login");
+        } else {
+            setAuthorized(true);
         }
     }, [user, role, loading]);
 
-    if (loading || !user || role !== "subadmin") {
+    if (loading || !authorized) {
         return <div className="flex items-center justify-center h-screen">Loading...</div>;
     }
 
@@ -928,7 +940,6 @@ export default function SubAdminProfile() {
 
 
 app->user-page.jsx
-// admission-management/src/app/user/page.js
 "use client";
 
 import { useEffect } from "react";
@@ -940,8 +951,7 @@ export default function UserPage() {
     const router = useRouter();
 
     useEffect(() => {
-        if (loading) return; // Wait until loading completes
-
+        if (loading) return;
         if (!user || role !== "user") {
             router.push("/login");
         }
@@ -951,11 +961,7 @@ export default function UserPage() {
         return <div className="flex items-center justify-center h-screen">Loading...</div>;
     }
 
-    return (
-        <div>
-            <h1>Welcome User</h1>
-        </div>
-    );
+    return <div>Welcome User</div>;
 }
 
 
@@ -1145,6 +1151,7 @@ export default function Sidebar() {
 
 
 
+
 src->components->SubadminDashboard.js
 // admission-management/src/components/SubadminDashboard.js
 export default function SubadminDashboard() {
@@ -1152,10 +1159,6 @@ export default function SubadminDashboard() {
 }
 
 
-
-
-
-src->components->UserDashboard.js
 
 
 
@@ -1183,18 +1186,15 @@ export function AuthProvider({ children }) {
         const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
             if (authUser) {
                 try {
-                    console.log("🔹 Authenticated User:", authUser.email);
+                    console.log("✅ Authenticated User:", authUser.email);
 
-                    // Fetch user role from MongoDB
                     const res = await fetch(`/api/users?email=${authUser.email}`);
                     const data = await res.json();
 
                     if (data?.role) {
-                        console.log(`✅ Role set for ${authUser.email}: ${data.role}`);
                         setUser(authUser);
                         setRole(data.role);
                     } else {
-                        console.log(`❌ No role found for ${authUser.email}`);
                         setUser(authUser);
                         setRole("user");
                     }
@@ -1204,7 +1204,6 @@ export function AuthProvider({ children }) {
                     setRole(null);
                 }
             } else {
-                console.log("❌ User signed out");
                 setUser(null);
                 setRole(null);
             }
@@ -1215,7 +1214,7 @@ export function AuthProvider({ children }) {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, role, loading }}>
+        <AuthContext.Provider value={{ user, role, setUser, setRole, loading }}>
             {children}
         </AuthContext.Provider>
     );
@@ -1253,6 +1252,7 @@ const admissionSchema = new mongoose.Schema({
 const Admission = mongoose.models.Admission || mongoose.model('Admission', admissionSchema);
 
 export default Admission;
+
 
 
 
@@ -1316,6 +1316,7 @@ export default clientPromise;
 
 
 
+
 src->middleware->authMiddleware.js
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
@@ -1373,25 +1374,7 @@ src->styles->globals.css
 
 
 
-/tailwind.config.mjs
 
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
-      },
-    },
-  },
-  plugins: [],
-};
 
 
 /tailwind.config.js
@@ -1412,16 +1395,7 @@ module.exports = {
 };
 
 
-/postcss.config.mjs
 
-/** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
-  },
-};
-
-export default config;
 
 
 /postcss.config.js
@@ -1471,21 +1445,6 @@ module.exports = {
   }
 }
 
-
-/next.config.mjs
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
-
-
-/eslint.config.mjs
-
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
-
-export default nextConfig;
 
 
 
