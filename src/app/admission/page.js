@@ -1,13 +1,46 @@
-'use client';  // This marks the file as a client-side component
+'use client';
 
-import { useState } from "react"; 
-import Image from "next/image"; 
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWhatsapp } from "@fortawesome/free-brands-svg-icons"; 
-import { faEnvelope, faPhone, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons"; 
-import Link from "next/link"; 
-import "@fontsource/anek-malayalam";  
-import "@fontsource/poppins";   
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import "@fontsource/anek-malayalam";
+import "@fontsource/poppins";
+
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <nav
+      className={`fixed w-full z-50 transition-all duration-500 backdrop-blur-lg shadow-lg ${
+        scrolled ? "bg-green-800/60 py-1" : "bg-transparent py-3"}`}
+    >
+      <div className="container mx-auto px-4 flex items-center justify-center">
+        <Link href="/" className="flex items-center space-x-2 group">
+          <div className="relative w-8 h-8 overflow-hidden rounded-lg shadow-lg">
+            <Image
+              src="/images/Logo.png"
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-110"
+              alt="Islamic Dawa Academy Logo"
+              priority
+            />
+          </div>
+          <span className="text-lg font-semibold text-white font-['Poppins'] tracking-wide">
+            Islamic Dawa Academy
+          </span>
+        </Link>
+      </div>
+    </nav>
+  );
+};
 
 export default function Admission() {
   const [formData, setFormData] = useState({
@@ -28,7 +61,7 @@ export default function Admission() {
     prevInstitute: "",
     studyYears: "",
     lastMadrassaClass: "",
-    lastSchoolClass: ""
+    lastSchoolClass: "",
   });
 
   const handleChange = (e) => {
@@ -43,24 +76,24 @@ export default function Admission() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const response = await fetch('/api/admissions', {
-      method: 'POST',
+    const response = await fetch("/api/admissions", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(formData),
     });
   
     if (response.ok) {
-      alert('Admission submitted successfully!');
+      alert("Admission submitted successfully!");
     } else {
-      alert('Error submitting admission');
+      alert("Error submitting admission");
     }
   };
-  
+
   return (
     <div className="bg-gradient-to-b from-green-900 to-green-800 text-white min-h-screen">
-      {/* Admission Form */}
+      <Navbar />
       <section className="container mx-auto px-6 py-24">
         <h2 className="text-5xl font-bold mb-8 text-center font-['Poppins'] text-transparent bg-clip-text bg-gradient-to-r from-green-300 to-emerald-200">
           Admission Form
@@ -72,7 +105,8 @@ export default function Admission() {
             <input type="text" name="motherName" placeholder="Mother's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
             <input type="text" name="guardianName" placeholder="Guardian's Name" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
             <input type="text" name="relation" placeholder="Relation with the Child" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="date" name="dob" placeholder="Date of Birth" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
+            <input type="text" name="address" placeholder="Address" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
+            <input type="date" name="dob" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
             <input type="text" name="phone" placeholder="Phone Number" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
             <input type="text" name="whatsapp" placeholder="Whatsapp Number" onChange={handleChange} required className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
             <label className="text-white">Aadhaar: <input type="file" name="aadhaar" onChange={handleChange} className="block text-white" /></label>
@@ -85,8 +119,12 @@ export default function Admission() {
                 <option value="YES">YES</option>
               </select>
             </label>
-            <input type="text" name="prevInstitute" placeholder="Previous Institute" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
-            <input type="text" name="studyYears" placeholder="Years of Study" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
+            {formData.studiedBefore === "YES" && (
+              <>
+                <input type="text" name="prevInstitute" placeholder="Previous Institute" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
+                <input type="text" name="studyYears" placeholder="Years of Study" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
+              </>
+            )}
             <input type="text" name="lastMadrassaClass" placeholder="Last Class in Madrassa" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
             <input type="text" name="lastSchoolClass" placeholder="Last Class in School" onChange={handleChange} className="p-4 rounded-xl bg-white/10 border border-green-600/30 text-white" />
           </div>
