@@ -1,16 +1,15 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { auth, signInWithEmailAndPassword } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/AuthContext"; // ✅ Ensure correct import
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const router = useRouter();
-    const { user, role, setUser, setRole, loading } = useAuth(); // ✅ Ensure setUser and setRole exist
+    const { user, role, setUser, setRole, loading } = useAuth();
 
     useEffect(() => {
         if (!loading && user && role) {
@@ -21,8 +20,20 @@ export default function LoginPage() {
 
     const handleLogin = async () => {
         try {
+            setErrorMessage(""); // Reset error message
+
+            if (!email || !password) {
+                setErrorMessage("❌ Please fill in all fields.");
+                return;
+            }
+
+            // ✅ Check Firebase connection
+            console.log("📡 Connecting to Firebase...");
+            
             const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const loggedUser = userCredential.user;
+
+            console.log("✅ Firebase Authenticated:", loggedUser.email);
 
             const response = await fetch(`/api/users?email=${loggedUser.email}`);
             const userData = await response.json();
@@ -35,7 +46,8 @@ export default function LoginPage() {
                 setErrorMessage("Role not found. Please contact support.");
             }
         } catch (error) {
-            setErrorMessage(error.message);
+            console.error("❌ Firebase Auth Error:", error.message);
+            setErrorMessage(`❌ ${error.message}`);
         }
     };
 

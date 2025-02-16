@@ -1,27 +1,56 @@
 import { NextResponse } from "next/server";
+import path from "path";
+import fs from "fs/promises";
 import clientPromise from "@/lib/mongodb";
-import { auth } from "@/lib/firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, createUserWithEmailAndPassword } from "@/lib/firebase";
 
 export async function POST(request) {
     try {
-        const body = await request.json(); // ✅ Parse JSON data
+        const formData = await request.formData();
+        console.log("📤 Received Admission Data:", formData);
 
-        const requiredFields = ["name", "email", "password", "phone", "institute"];
-        for (let field of requiredFields) {
-            if (!body[field]) {
-                return NextResponse.json({ error: `❌ Missing required field: ${field}` }, { status: 400 });
+        // Extracting fields from FormData
+        const extractedData = {};
+        for (const [key, value] of formData.entries()) {
+            extractedData[key] = value;
+        }
+
+        const {
+            name, fatherName, motherName, guardianName, relation,
+            address, dob, phone, whatsapp, email, password
+        } = extractedData;
+
+        // Ensure required fields are filled
+        if (!name || !fatherName || !motherName || !guardianName || !relation || !address || !dob || !phone || !whatsapp || !email || !password) {
+            return NextResponse.json({ error: "❌ Missing required fields" }, { status: 400 });
+        }
+
+        // Handle File Uploads
+        const uploadFolder = path.join(process.cwd(), "public/uploads");
+        await fs.mkdir(uploadFolder, { recursive: true });
+
+        const filePaths = {};
+        const fileFields = ["aadhaar", "tc", "pupilPhoto", "signature"];
+
+        for (const key of fileFields) {
+            const file = formData.get(key);
+            if (file && file.name) {
+                const filePath = path.join(uploadFolder, file.name);
+                const fileBuffer = await file.arrayBuffer();
+                await fs.writeFile(filePath, Buffer.from(new Uint8Array(fileBuffer)));
+                filePaths[key] = `/uploads/${file.name}`;
             }
         }
 
-        const { name, email, password, phone, institute } = body;
-
+        // Connect to MongoDB
         const client = await clientPromise;
         const db = client.db("admission_management");
 
+        // Assign Role (First User → Admin, Second → Subadmin, Others → User)
         const userCount = await db.collection("users").countDocuments();
         let role = userCount === 0 ? "admin" : userCount === 1 ? "subadmin" : "user";
 
+        // Create user in Firebase Authentication
         let user;
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -31,19 +60,27 @@ export async function POST(request) {
             return NextResponse.json({ error: firebaseError.message }, { status: 500 });
         }
 
+        // Store Admission Data
+        await db.collection("admissions").insertOne({
+            uid: user.uid,
+            name, fatherName, motherName, guardianName, relation,
+            address, dob, phone, whatsapp, email,
+            aadhaar: filePaths["aadhaar"], tc: filePaths["tc"],
+            pupilPhoto: filePaths["pupilPhoto"], signature: filePaths["signature"],
+            createdAt: new Date()
+        });
+
+        // Store User Data in MongoDB
         await db.collection("users").insertOne({
             uid: user.uid,
-            name,
-            email,
-            phone,
-            institute,
-            role,
-            createdAt: new Date(),
+            name, email, phone, role,
+            createdAt: new Date()
         });
 
         return NextResponse.json({ message: "✅ Admission and user registration successful", role }, { status: 201 });
 
     } catch (error) {
+        console.error("❌ Error Processing Admission:", error);
         return NextResponse.json({ error: "❌ Internal server error" }, { status: 500 });
     }
 }

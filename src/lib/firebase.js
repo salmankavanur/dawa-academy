@@ -5,7 +5,7 @@ import {
     createUserWithEmailAndPassword, 
     GoogleAuthProvider, 
     signInWithPopup, 
-    signOut
+    signOut 
 } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
@@ -18,16 +18,10 @@ const firebaseConfig = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-// Initialize Firebase
+// ✅ Assign to a variable before exporting
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication
 const auth = getAuth(app);
-
-// Initialize Google Provider
+const db = getFirestore(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Initialize Firestore Database
-const db = getFirestore(app);
-
-export { auth, db, googleProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut };
+export { app, auth, db, googleProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut };
