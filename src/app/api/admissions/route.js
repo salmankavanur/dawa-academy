@@ -3,22 +3,20 @@ import path from "path";
 import fs from "fs/promises";
 import clientPromise from "@/lib/mongodb";
 import { auth, createUserWithEmailAndPassword } from "@/lib/firebase";
+import archiver from "archiver";
 
 export async function POST(request) {
     try {
         const formData = await request.formData();
-        console.log("📤 Received Admission Data:", formData);
+        console.log("📤 Received Admission Data");
 
-        // Extracting fields from FormData
+        // Extract fields from FormData
         const extractedData = {};
         for (const [key, value] of formData.entries()) {
             extractedData[key] = value;
         }
 
-        const {
-            name, fatherName, motherName, guardianName, relation,
-            address, dob, phone, whatsapp, email, password
-        } = extractedData;
+        const { name, fatherName, motherName, guardianName, relation, address, dob, phone, whatsapp, email, password } = extractedData;
 
         // Ensure required fields are filled
         if (!name || !fatherName || !motherName || !guardianName || !relation || !address || !dob || !phone || !whatsapp || !email || !password) {
@@ -26,7 +24,7 @@ export async function POST(request) {
         }
 
         // Handle File Uploads
-        const uploadFolder = path.join(process.cwd(), "public/uploads");
+        const uploadFolder = path.join(process.cwd(), "public/uploads", email);
         await fs.mkdir(uploadFolder, { recursive: true });
 
         const filePaths = {};
@@ -38,7 +36,7 @@ export async function POST(request) {
                 const filePath = path.join(uploadFolder, file.name);
                 const fileBuffer = await file.arrayBuffer();
                 await fs.writeFile(filePath, Buffer.from(new Uint8Array(fileBuffer)));
-                filePaths[key] = `/uploads/${file.name}`;
+                filePaths[key] = `/uploads/${email}/${file.name}`; // ✅ Fix file paths
             }
         }
 
@@ -60,20 +58,20 @@ export async function POST(request) {
             return NextResponse.json({ error: firebaseError.message }, { status: 500 });
         }
 
-        // Store Admission Data
+        // ✅ Store Admission Data in MongoDB
         await db.collection("admissions").insertOne({
             uid: user.uid,
             name, fatherName, motherName, guardianName, relation,
             address, dob, phone, whatsapp, email,
-            aadhaar: filePaths["aadhaar"], tc: filePaths["tc"],
-            pupilPhoto: filePaths["pupilPhoto"], signature: filePaths["signature"],
+            files: filePaths, // ✅ Store file paths
             createdAt: new Date()
         });
 
-        // Store User Data in MongoDB
+        // ✅ Store User Data in MongoDB
         await db.collection("users").insertOne({
             uid: user.uid,
             name, email, phone, role,
+            files: filePaths, // ✅ Store file paths
             createdAt: new Date()
         });
 

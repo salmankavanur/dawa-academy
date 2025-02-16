@@ -1,6 +1,6 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import Link from "next/link";
 
 export default function UsersPage() {
     const [users, setUsers] = useState([]);
@@ -10,15 +10,33 @@ export default function UsersPage() {
         const fetchUsers = async () => {
             try {
                 const response = await fetch("/api/admin/users");
-                if (!response.ok) throw new Error("Failed to fetch users");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch users");
+                }
                 const data = await response.json();
                 setUsers(data);
             } catch (error) {
+                console.error("❌ Error fetching users:", error);
                 setError("Error fetching users. Please try again later.");
             }
         };
         fetchUsers();
     }, []);
+
+    const handleDownloadZip = async (email) => {
+        try {
+            const response = await fetch(`/api/admin/download?email=${email}`);
+            const data = await response.json();
+            if (data.downloadUrl) {
+                window.open(data.downloadUrl, "_blank");
+            } else {
+                alert("❌ No files found for this user.");
+            }
+        } catch (error) {
+            console.error("❌ Download Error:", error);
+            alert("❌ Failed to download files.");
+        }
+    };
 
     return (
         <div className="p-6 bg-white shadow-lg rounded-lg">
@@ -29,8 +47,7 @@ export default function UsersPage() {
                     <tr className="bg-gray-200">
                         <th className="border border-gray-300 p-2">User Name</th>
                         <th className="border border-gray-300 p-2">Email</th>
-                        <th className="border border-gray-300 p-2">Phone</th>
-                        <th className="border border-gray-300 p-2">Role</th>
+                        <th className="border border-gray-300 p-2">Contact</th>
                         <th className="border border-gray-300 p-2">Files</th>
                     </tr>
                 </thead>
@@ -41,17 +58,30 @@ export default function UsersPage() {
                                 <td className="border border-gray-300 p-2">{user.name}</td>
                                 <td className="border border-gray-300 p-2">{user.email}</td>
                                 <td className="border border-gray-300 p-2">{user.phone}</td>
-                                <td className="border border-gray-300 p-2">{user.role}</td>
                                 <td className="border border-gray-300 p-2">
-                                    <Link href={`/uploads/${user.uid}.pdf`}>
-                                        <button className="bg-blue-500 text-white px-3 py-1 rounded">Download</button>
-                                    </Link>
+                                    {user.files ? (
+                                        <>
+                                            {Object.entries(user.files).map(([key, url]) => (
+                                                <a key={key} href={url} download className="text-blue-500 hover:underline ml-2">
+                                                    {key.toUpperCase()}
+                                                </a>
+                                            ))}
+                                            <button
+                                                className="ml-4 bg-blue-500 text-white px-3 py-1 rounded"
+                                                onClick={() => handleDownloadZip(user.email)}
+                                            >
+                                                Download All (ZIP)
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <span className="text-gray-500">No files</span>
+                                    )}
                                 </td>
                             </tr>
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="5" className="text-center p-4">No users found.</td>
+                            <td colSpan="4" className="text-center p-4">No users found.</td>
                         </tr>
                     )}
                 </tbody>
