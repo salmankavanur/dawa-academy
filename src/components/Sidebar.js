@@ -62,7 +62,7 @@ export default function Sidebar() {
                 {isVisible && role && (
                     <motion.aside
                         id="sidebar"
-                        className={`w-64 bg-gray-900 text-white p-4 min-h-screen fixed top-0 left-0 md:relative transition-transform duration-300 ease-in-out z-40 ${
+                        className={`w-64 bg-green-800/90 backdrop-blur-md text-white p-4 min-h-screen fixed top-0 left-0 md:relative transition-transform duration-300 ease-in-out z-40 ${
                             isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
                         }`}
                         initial={{ x: -300 }}
@@ -83,7 +83,7 @@ export default function Sidebar() {
                                             <li key={link.path} className="mb-2">
                                                 <Link
                                                     href={link.path}
-                                                    className="block p-2 hover:bg-gray-700 rounded"
+                                                    className="block p-2 hover:bg-white hover:text-black rounded"
                                                     onClick={() => setIsOpen(false)} // Close sidebar on click
                                                 >
                                                     {link.name}
