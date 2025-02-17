@@ -34,7 +34,7 @@ export default function Sidebar() {
         admin: [
             { section: "Home", links: [{ name: "Dashboard", path: "/admin" }, { name: "Users/Others", path: "/admin/users" }] },
             { section: "Institute", links: [{ name: "Institutes", path: "/admin/institutes" }] },
-            { section: "Student", links: [{ name: "Applications", path: "/admin/applications" }, { name: "Students", path: "/admin/students" }, { name: "Admit Card", path: "/admin/admitcard" }] },
+            { section: "Student", links: [{ name: "Applications", path: "/admin/application" }, { name: "Students", path: "/admin/students" }, { name: "Admit Card", path: "/admin/admitcard" }] },
             { section: "Notify Student", links: [{ name: "Notify Students", path: "/admin/notify-students" }, { name: "Notification Template", path: "/admin/notification-template" }] },
             { section: "Profile", links: [{ name: "Profile", path: "/admin/profile" }] },
         ],
