@@ -27,8 +27,9 @@ export default function ApplicationPage() {
         try {
             const response = await fetch(`/api/generate-pdf?email=${email}`);
             const data = await response.json();
-            if (data.downloadUrl) {
-                window.open(data.downloadUrl, "_blank");
+    
+            if (data.pdfUrl) {  // ✅ Check for pdfUrl instead of downloadUrl
+                window.open(data.pdfUrl, "_blank");
             } else {
                 alert("❌ PDF file not found.");
             }
@@ -37,6 +38,7 @@ export default function ApplicationPage() {
             alert("❌ Failed to generate PDF.");
         }
     };
+    
 
     return (
         <div className="p-6 bg-white shadow-lg rounded-lg">
