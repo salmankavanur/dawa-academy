@@ -43,7 +43,7 @@ next-env.d.ts
 
 
 # Ignore all files inside the 'upload' folder
-upload/*
+uploads/*
 
 # Ensure the 'upload' folder itself is tracked
-!upload/
+!uploads/
