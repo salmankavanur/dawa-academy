@@ -40,3 +40,10 @@ firebase-admin.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Ignore all files inside the 'upload' folder
+# uploads/*
+
+# Ensure the 'upload' folder itself is tracked
+# !uploads/
