@@ -48,6 +48,7 @@ export default function UsersPage() {
                         <th className="border border-gray-300 p-2">User Name</th>
                         <th className="border border-gray-300 p-2">Email</th>
                         <th className="border border-gray-300 p-2">Contact</th>
+                        <th className="border border-gray-300 p-2">Role</th>
                         <th className="border border-gray-300 p-2">Files</th>
                     </tr>
                 </thead>
@@ -58,6 +59,7 @@ export default function UsersPage() {
                                 <td className="border border-gray-300 p-2">{user.name}</td>
                                 <td className="border border-gray-300 p-2">{user.email}</td>
                                 <td className="border border-gray-300 p-2">{user.phone}</td>
+                                <td className="border border-gray-300 p-2">{user.role}</td>
                                 <td className="border border-gray-300 p-2">
                                     {user.files ? (
                                         <>
